@@ -7,7 +7,8 @@ module.exports.validateSend = (req, res, next) => {
             .when('type', { is: Joi.string().valid('sms'), then: Joi.string().regex(/^[0-9]{12,13}$/) })
             .when('type', { is: 'email', then: Joi.string().email() })
             .required(),
-        ttl: Joi.number().integer().min(1)
+        ttl: Joi.number().integer().min(1),
+        destroy: Joi.boolean()
     }).required();
 
     const validation = Joi.validate(req.body, sendSchema);

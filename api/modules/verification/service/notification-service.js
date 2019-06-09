@@ -8,7 +8,10 @@ class NotificationService extends BaseService {
         });
 
         this.config = config;
-        this.twilio = require('twilio')(this.config.notification.twilio.accountSid, this.config.notification.twilio.authToken); // eslint-disable-line global-require
+
+        if (!this.config.notification.twilio.mock) {
+            this.twilio = require('twilio')(this.config.notification.twilio.accountSid, this.config.notification.twilio.authToken); // eslint-disable-line global-require
+        }
     }
 
     send(type, destination, message) {

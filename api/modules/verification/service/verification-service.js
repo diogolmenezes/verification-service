@@ -15,12 +15,12 @@ class VerificationService extends BaseService {
     }
 
     // create the verification code and save on REDIS
-    createVerificationCode(type, destination, ttl) {
+    createVerificationCode(type, destination, ttl, destroy) {
         let verificationCode;
 
         switch (type) {
             case 'sms':
-                verificationCode = Math.floor(Math.random() * (999999 - 100000 + 1) + 100000);
+                verificationCode = (Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)).toString();
                 break;
             case 'email':
                 verificationCode = '123456poiqweopiwqopeiqwoei';
@@ -31,22 +31,21 @@ class VerificationService extends BaseService {
 
         const key = `verification-service:${type}:${destination}`;
 
-        this.redis.set(key, verificationCode, ttl * 60);
+        this.redis.set(key, { verificationCode, destroy }, ttl * 60);
 
         return verificationCode;
     }
 
     // create the verification code and put on the send queue
-    addToQueue(type, destination, ttl) {
+    addToQueue(type, destination, ttl, destroy) {
         const message = {
             type,
-            destination,
-            ttl
+            destination
         };
 
         this.log.debug(`Adding verification request to the send queue [${this.queueName}]`, message);
 
-        message.verificationCode = this.createVerificationCode(type, destination, ttl);
+        message.verificationCode = this.createVerificationCode(type, destination, ttl, destroy);
 
         return queue.channel.sendToQueue(this.queueName, Buffer.from(JSON.stringify(message)));
     }
@@ -68,9 +67,11 @@ class VerificationService extends BaseService {
         const key = `verification-service:${type}:${destination}`;
 
         const item = await this.redis.get(key);
-        const checked = verificationCode === item;
+        const checked = verificationCode === item.verificationCode;
 
-        // TODO: Matar token ?
+        if (checked && item.destroy) {
+            await this.redis.del(key);
+        }
 
         return checked;
     }

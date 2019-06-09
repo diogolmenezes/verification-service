@@ -27,7 +27,7 @@
     },
     "notification": {
         "twilio": {
-            "mock": false,
+            "mock": true,
             "accountSid": "",
             "authToken": "",
             "from": ""

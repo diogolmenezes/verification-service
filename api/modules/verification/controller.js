@@ -12,14 +12,14 @@ class VerificationController extends BaseController {
     async send(req, res, next) {
         super.activateRequestLog(req);
 
-        const { type, destination, ttl } = req.body;
+        const { type, destination, ttl, destroy } = req.body;
 
-        const logSuffix = `[${type}] [${destination}] [${ttl} minutes]`;
+        const logSuffix = `[${type}] [${destination}] [${ttl} minutes] [${destroy}]`;
 
         try {
             this.log.debug(`Trying sent verification code to ${logSuffix}`);
 
-            await this.verificationService.addToQueue(type, destination, ttl);
+            await this.verificationService.addToQueue(type, destination, ttl, destroy);
 
             res.send(204);
 
