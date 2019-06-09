@@ -1,0 +1,97 @@
+{
+    "app": {
+        "name": "verification",
+        "baseRoute": "/api",
+        "port": 8090
+    },
+    "cors": {
+        "preflightMaxAge": 5,
+        "origins": [
+            "*"
+        ],
+        "allowHeaders": [
+            "x-origin-channel",
+            "x-origin-application",
+            "x-origin-device",
+            "x-identifier"
+        ],
+        "exposeHeaders": []
+    },
+    "db": {
+        "mongodb": {
+            "application": {
+                "url": "mongodb://localhost:27017/verification-service",
+                "options": {
+                    "useNewUrlParser": true,
+                    "poolSize": 10
+                }
+            }
+        }
+    },
+    "redis": {
+        "host": "localhost",
+        "ttl": 86400,
+        "port": 6379
+    },
+    "cache": {
+        "enabled": true,
+        "ttl": 1800,
+        "headerKey": "x-identifier"
+    },
+    "session": {
+        "prefix": "myapplication",
+        "headerKey": "x-identifier",
+        "ttl": 3600
+    },
+    "log": {
+        "debug": false,
+        "bunyan": {
+            "name": "Application",
+            "streams": [
+                {
+                    "level": "debug",
+                    "type": "rotating-file",
+                    "path": "logs/{hostname}.log",
+                    "period": "1d",
+                    "count": 2
+                }
+            ]
+        }
+    },
+    "authorization": {
+        "enabled": true,
+        "basic": {
+            "username": "admin",
+            "password": "admin"
+        }
+    },
+    "audit": {
+        "enabled": true,
+        "printLog": true,
+        "bunyan": {
+            "name": "Audit",
+            "streams": [
+                {
+                    "level": "debug",
+                    "type": "rotating-file",
+                    "path": "logs/audit.log",
+                    "period": "1d",
+                    "count": 2
+                }
+            ]
+        }
+    },
+    "origin": {
+            "ignoreExact": [
+                "/"
+            ],
+            "ignore": [
+                "/doc/"
+            ],
+            "require": {
+                "application": true,
+                "channel": true,
+                "device": false
+            }
+    }
+}
